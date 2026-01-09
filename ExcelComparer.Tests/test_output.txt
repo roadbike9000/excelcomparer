@@ -1,0 +1,14 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ExcelComparer -> C:\Users\jsmathers\source\repos\ExcelComparer\bin\Debug\net9.0\ExcelComparer.dll
+  ExcelComparer.Tests -> C:\Users\jsmathers\source\repos\ExcelComparer\ExcelComparer.Tests\bin\Debug\net9.0\ExcelComparer.Tests.dll
+Test run for C:\Users\jsmathers\source\repos\ExcelComparer\ExcelComparer.Tests\bin\Debug\net9.0\ExcelComparer.Tests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+The active test run was aborted. Reason: Test host process crashed
+Results File: C:\Users\jsmathers\source\repos\ExcelComparer\ExcelComparer.Tests\TestResults\testresults.trx
+
+Passed!  - Failed:     0, Passed:    72, Skipped:     0, Total:    72, Duration: 8 s - ExcelComparer.Tests.dll (net9.0)
+Test Run Aborted.
