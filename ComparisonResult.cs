@@ -10,6 +10,12 @@ namespace ExcelComparer
         public int TextMismatches { get; set; }
         public int SheetsCompared { get; set; }
 
+        /// <summary>
+        /// Indicates whether the comparison completed successfully.
+        /// False indicates a fatal error occurred (e.g., file read failure).
+        /// </summary>
+        public bool Success { get; set; } = true;
+
         public int TotalMismatches => NumericMismatches + TextMismatches;
 
         public void PrintSummary()
@@ -18,6 +24,15 @@ namespace ExcelComparer
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("=== Comparison Summary ===");
             Console.ResetColor();
+
+            if (!Success)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("✗ Comparison failed - unable to complete");
+                Console.ResetColor();
+                return;
+            }
+
             Console.WriteLine($"Sheets compared: {SheetsCompared}");
             Console.WriteLine($"Total cells compared: {TotalCellsCompared}");
             Console.WriteLine($"Numeric mismatches: {NumericMismatches}");

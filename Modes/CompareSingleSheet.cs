@@ -19,7 +19,7 @@ namespace ExcelComparer.Modes
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Error: Cannot open '{file1}' - {ex.Message}");
                 Console.ResetColor();
-                return new ComparisonResult();
+                return new ComparisonResult { Success = false };
             }
 
             try
@@ -32,7 +32,7 @@ namespace ExcelComparer.Modes
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Error: Cannot open '{file2}' - {ex.Message}");
                 Console.ResetColor();
-                return new ComparisonResult();
+                return new ComparisonResult { Success = false };
             }
 
             using (wb1)
@@ -44,7 +44,7 @@ namespace ExcelComparer.Modes
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Sheet '{sheetName}' not found in one or both workbooks.");
                 Console.ResetColor();
-                return new ComparisonResult();
+                return new ComparisonResult { Success = false };
             }
 
             Console.ForegroundColor = ConsoleColor.Cyan;

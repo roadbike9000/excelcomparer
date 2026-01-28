@@ -41,8 +41,13 @@ namespace ExcelComparer.Utilities
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Error: Cannot read '{file1}' - {ex.Message}");
+                Console.WriteLine($"Error Type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Error: {ex.InnerException.Message}");
+                }
                 Console.ResetColor();
-                return new ComparisonResult { SheetsCompared = 0 }; // No comparison performed
+                return new ComparisonResult { SheetsCompared = 0, Success = false }; // Comparison failed
             }
 
             try
@@ -53,8 +58,13 @@ namespace ExcelComparer.Utilities
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Error: Cannot read '{file2}' - {ex.Message}");
+                Console.WriteLine($"Error Type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Error: {ex.InnerException.Message}");
+                }
                 Console.ResetColor();
-                return new ComparisonResult { SheetsCompared = 0 }; // No comparison performed
+                return new ComparisonResult { SheetsCompared = 0, Success = false }; // Comparison failed
             }
 
             var result = new ComparisonResult { SheetsCompared = 1 };
@@ -161,6 +171,7 @@ namespace ExcelComparer.Utilities
         {
             const long MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB limit
             const int MAX_ROWS = 1_000_000; // 1 million rows limit
+            const int MAX_COLUMNS = 100_000; // 100k columns limit (protection against parsing errors)
 
             var rows = new List<List<string>>();
 
@@ -192,7 +203,7 @@ namespace ExcelComparer.Utilities
                 HasHeaderRecord = false, // Treat all rows as data
                 MissingFieldFound = null, // Don't throw on missing fields
                 BadDataFound = null, // Don't throw on bad data
-                DetectDelimiter = true, // Auto-detect delimiter
+                DetectDelimiter = true, // Auto-detect delimiter (comma, tab, semicolon, pipe)
                 TrimOptions = TrimOptions.None // Preserve whitespace
             };
 
@@ -200,8 +211,10 @@ namespace ExcelComparer.Utilities
             using var reader = new StreamReader(fileStream, encoding);
             using var csv = new CsvReader(reader, config);
 
+            int rowNumber = 0;
             while (csv.Read())
             {
+                rowNumber++;
                 if (rows.Count >= MAX_ROWS)
                 {
                     throw new InvalidOperationException(
@@ -209,10 +222,23 @@ namespace ExcelComparer.Utilities
                 }
 
                 var row = new List<string>();
-                for (int i = 0; csv.TryGetField<string>(i, out var value); i++)
+
+                // Get the actual record from CsvHelper's parser (this is the array of fields)
+                var record = csv.Parser.Record;
+                if (record != null)
                 {
-                    row.Add(value ?? "");
+                    int columnCount = record.Length;
+
+                    if (columnCount > MAX_COLUMNS)
+                    {
+                        throw new InvalidOperationException(
+                            $"Row {rowNumber} has {columnCount:N0} columns, which exceeds the maximum allowed ({MAX_COLUMNS:N0}). " +
+                            $"Using delimiter: '{config.Delimiter}'. First field: '{(record.Length > 0 ? record[0].Substring(0, Math.Min(50, record[0].Length)) : "N/A")}'");
+                    }
+
+                    row.AddRange(record);
                 }
+
                 rows.Add(row);
             }
 

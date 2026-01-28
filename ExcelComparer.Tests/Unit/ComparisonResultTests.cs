@@ -125,5 +125,93 @@ namespace ExcelComparer.Tests.Unit
             // Assert
             result.TotalCellsCompared.Should().Be(3_000_000_000L);
         }
+
+        [Fact]
+        public void NewInstance_ShouldHaveSuccessTrue()
+        {
+            // Arrange & Act
+            var result = new ComparisonResult();
+
+            // Assert
+            result.Success.Should().BeTrue();
+        }
+
+        [Fact]
+        public void PrintSummary_WithSuccessFalse_ShouldDisplayFailureMessage()
+        {
+            // Arrange
+            var result = new ComparisonResult
+            {
+                Success = false,
+                SheetsCompared = 0,
+                TotalCellsCompared = 0,
+                NumericMismatches = 0,
+                TextMismatches = 0
+            };
+
+            var output = new StringWriter();
+            Console.SetOut(output);
+
+            // Act
+            result.PrintSummary();
+
+            // Assert
+            var consoleOutput = output.ToString();
+            consoleOutput.Should().Contain("Comparison Summary");
+            consoleOutput.Should().Contain("Comparison failed - unable to complete");
+        }
+
+        [Fact]
+        public void PrintSummary_WithSuccessFalse_ShouldNotDisplayStatistics()
+        {
+            // Arrange
+            var result = new ComparisonResult
+            {
+                Success = false,
+                SheetsCompared = 0,
+                TotalCellsCompared = 0,
+                NumericMismatches = 0,
+                TextMismatches = 0
+            };
+
+            var output = new StringWriter();
+            Console.SetOut(output);
+
+            // Act
+            result.PrintSummary();
+
+            // Assert
+            var consoleOutput = output.ToString();
+            consoleOutput.Should().NotContain("Sheets compared");
+            consoleOutput.Should().NotContain("Total cells compared");
+            consoleOutput.Should().NotContain("No differences found");
+            consoleOutput.Should().NotContain("identical");
+        }
+
+        [Fact]
+        public void PrintSummary_WithSuccessTrue_ShouldDisplayStatistics()
+        {
+            // Arrange
+            var result = new ComparisonResult
+            {
+                Success = true,
+                SheetsCompared = 1,
+                TotalCellsCompared = 100,
+                NumericMismatches = 0,
+                TextMismatches = 0
+            };
+
+            var output = new StringWriter();
+            Console.SetOut(output);
+
+            // Act
+            result.PrintSummary();
+
+            // Assert
+            var consoleOutput = output.ToString();
+            consoleOutput.Should().Contain("Sheets compared: 1");
+            consoleOutput.Should().Contain("Total cells compared: 100");
+            consoleOutput.Should().Contain("No differences found");
+        }
     }
 }

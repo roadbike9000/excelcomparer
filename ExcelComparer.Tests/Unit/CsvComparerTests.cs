@@ -297,6 +297,7 @@ namespace ExcelComparer.Tests.Unit
             // Assert
             result.SheetsCompared.Should().Be(0);
             result.TotalMismatches.Should().Be(0);
+            result.Success.Should().BeFalse("comparison should fail when file cannot be read");
             output.ToString().Should().Contain("Error");
         }
 
